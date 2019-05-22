@@ -27,8 +27,6 @@ _db = Database()
 
 clients =  _db.select(sql, params)
 
-# clients should be an list(array) not a dict (json)
-success = not isinstance(clients, dict)
+print(_db.execTrue(clients))
 
-print(success)
 print(clients)

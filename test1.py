@@ -6,15 +6,13 @@ import uuid
 _db = Database()
 
 clientData =  {
-  "name" : "yannick122",
-  "dateOfBirth" : "2019-12-05",
+  "name" : "Kasongo",
+  "dateOfBirth" : "1979-07-08",
   "age" : 78,
   "height" : 1.60,
   "uuid" : _db.bid('CCC4D7BA4F3B4BB783D29B89830855A8')
 }
 
-result = _db.insert('client', clientData)
+result = _db.insert('client', clientData) 
 
-success = result.get('status')
-
-print(success, result)
+print(_db.updatedTrue(result), result)

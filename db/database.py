@@ -25,6 +25,8 @@ class Database :
     rqt = self.util.formatInsert(tableName, record)
     return self.execute(rqt['query'], rqt['params'])
 
+  def save(self, tableName, record):
+    return self.insert(tableName, record)
 
   # record is a dictionnary
   def update(self, tableName, record, key, value):
@@ -86,8 +88,7 @@ class Database :
       return rs
     finally:
       mycursor.close()
-     
-
+  
 
   #retrieve the first record from the result
   def one(self, sql, params):
@@ -97,9 +98,11 @@ class Database :
     else:
       return False
 
+
   #transaction 
   def transaction(self):
     return Transaction(self.conn)
+
 
   # return connection property
   def connection(self):
@@ -122,3 +125,9 @@ class Database :
       if hasattr(data, k) :
         data[k] = self.bid(data[k])
     return data
+
+  def execTrue(self, rows):
+    return not isinstance(rows, dict)
+  
+  def updatedTrue(self, result):
+    return result.get('status')

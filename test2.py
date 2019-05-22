@@ -5,11 +5,9 @@ _db = Database()
 
 clients = _db.select('''
     SELECT id, name, dateOfBirth, height, age 
-    FROM clients
+    FROM client
 ''')
-# clients should be an list(array) not a dict (json)
-success = not isinstance(clients, dict)
 
-print(success)
+print(_db.execTrue(clients))
+
 print(clients)
-

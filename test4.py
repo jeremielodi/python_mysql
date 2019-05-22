@@ -1,7 +1,6 @@
 from db.database import Database
 import uuid
 
-
 # 
 _db = Database()
 
@@ -19,14 +18,11 @@ clientUpdateData =  {
 }
 
 trans = _db.transaction()
-trans.addUpdateQuery('clients', clientUpdateData, 'id', 20)
+trans.addUpdateQuery('client', clientUpdateData, 'id', 20)
 
 trans.addInsertQuery('client', clientData)
 #trans.addUpdateQuery('client', clientUpdateData, 'id', 5)
 #trans.addDeleteQuery('client', 'id', 8)
 
 transResult = trans.execute()
-success = not isinstance(transResult, dict)
-
-# if transResult's type is dict (-~ json) the transaction has failed
-print(success, transResult)
+print(_db.execTrue(transResult))
