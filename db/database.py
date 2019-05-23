@@ -39,10 +39,13 @@ class Database :
     rqt = self.util.formatDelete(tableName, key, value)
     return self.execute(rqt['query'], rqt['params'])
 
+  # delete record in the database
+  def remove(self, tableName, key, value):
+    return self.delete(tableName, key, value)
+
 
   # add(insert) or update data in the database
   # return { status, lastrowid, msg }
-
   def execute(self, sql, values = []):
     mycursor = self.conn.cursor()
     rs =  { 'status' : False } # result
@@ -99,7 +102,7 @@ class Database :
       return False
 
 
-  #transaction 
+  # start transaction 
   def transaction(self):
     return Transaction(self.conn)
 
@@ -109,25 +112,27 @@ class Database :
     return self.conn
 
 
-  # generate a uniq key
+  # generate a uniq key, a binary key
   def uuid(self):
     return uuid.uuid4().bytes
 
 
-  # convert string val to binary
+  # convert string value to binary
   def bid(self, _val):
     return uuid.UUID(_val).bytes
   
 
-  # convert data keys to binary
+  # convert data keys to binary, data is an array
   def convert(self, data, keys):
     for k in keys:
       if hasattr(data, k) :
         data[k] = self.bid(data[k])
     return data
 
+  # check if a select query was exceuted succefully
   def execTrue(self, rows):
     return not isinstance(rows, dict)
-  
+
+  # check if an insert, delete or update query was exceuted succefully
   def updatedTrue(self, result):
     return result.get('status')

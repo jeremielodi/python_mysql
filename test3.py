@@ -16,7 +16,6 @@ options = {
 filter = FilterParser(options, { "tableAlias" : 'c' })
 filter.equals("id")
 filter.equals("name")
-#filter.custom('name', 'p.lastname=?')
 filter.dateFrom('dateOfBirth')
 
 

@@ -1,7 +1,7 @@
 from datetime import datetime, date, timedelta
 import calendar
 
-
+# calculate dates
 class PeriodService :
 
   def  __init__ (self, clientTimestamp):
