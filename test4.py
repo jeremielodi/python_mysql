@@ -18,11 +18,11 @@ clientUpdateData =  {
 }
 
 trans = _db.transaction()
-trans.addUpdateQuery('client', clientUpdateData, 'id', 20)
+trans.addUpdateQuery('client', clientUpdateData, 'age', 78)
 
 trans.addInsertQuery('client', clientData)
 #trans.addUpdateQuery('client', clientUpdateData, 'id', 5)
 #trans.addDeleteQuery('client', 'id', 8)
 
 transResult = trans.execute()
-print(_db.execTrue(transResult))
+print(_db.execTrue(transResult), transResult)

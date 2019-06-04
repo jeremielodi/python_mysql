@@ -1,3 +1,5 @@
+from hashlib import sha1
+
 class Util :
 
   def escape(self, val):
@@ -65,3 +67,8 @@ class Util :
           j = j + 1
         rows.append(record)
     return rows
+
+  def toSha1(self, value):
+    sha_1 = sha1()
+    sha_1.update(value.encode('utf8'))
+    return sha_1.hexdigest()

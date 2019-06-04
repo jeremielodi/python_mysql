@@ -20,6 +20,7 @@ Result = _db.save('client', clientData)
 # _db.updatedTrue tells you if your request has been excuted succefully
 print(_db.updatedTrue(Result), Result)
 
+# to get the last inserted id : Result['lastrowid'][0]
 
 
 #    delete example

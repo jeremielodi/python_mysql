@@ -1,138 +1,151 @@
 import mysql.connector
 import uuid
-from db.util import Util
-from db.transaction import Transaction
-
-class Database :
-
-  def __init__(self):
-    # creating a mysql connection
-    self.conn = mysql.connector.connect(
-      host = "localhost", # host
-      user = "root", # use your mysql user name
-      passwd = "", # use your mysql user passworsd
-      database = "gestion")
-    self.util = Util()
+from .util import Util
+from .transaction import Transaction
 
 
-  # selection data from database
-  def select(self, sql, params = []):
-    return self.exec(sql, params)
+class Database:
 
+    def __init__(self):
+        # creating a mysql connection
+        self.conn = self.createConnection()
+        self.util = Util()
 
-  # record is a dictionnary
-  def insert(self, tableName, record):
-    rqt = self.util.formatInsert(tableName, record)
-    return self.execute(rqt['query'], rqt['params'])
+    def createConnection(self):
+        if((not hasattr(self, 'conn')) or (not self.conn.is_connected())):
+            self.conn = mysql.connector.connect(
+                host="localhost",  # host
+                user="root",  # use your mysql user name
+                passwd="",  # use your mysql user passworsd
+                port=3306,
+                database="gestion")
+        return self.conn
 
-  def save(self, tableName, record):
-    return self.insert(tableName, record)
+    
+    # selection data from database
 
-  # record is a dictionnary
-  def update(self, tableName, record, key, value):
-    rqt = self.util.formatUpdate(tableName, record, key, value)
-    return self.execute(rqt['query'], rqt['params'])
+    def select(self, sql,  values=[]):
+        rs = {'status': False}  # result
+        try:
+            mycursor = self.conn.cursor()
+            sql = sql.replace("?", "%s")
+            mycursor.execute(sql, values)
+            values = mycursor.fetchall()
+            colums = mycursor.column_names
+            return self.util.bindKeysValues(colums, values)
 
+        except mysql.connector.Error as error:
+            rs['msg'] = error.__dict__.get('_full_msg')
+            rs['errno'] = error.__dict__.get('errno')
+            return rs
+        finally:
+            mycursor.close()
 
-  # delete record in the database
-  def delete(self, tableName, key, value):
-    rqt = self.util.formatDelete(tableName, key, value)
-    return self.execute(rqt['query'], rqt['params'])
+    # record is a dictionnary
 
-  # delete record in the database
-  def remove(self, tableName, key, value):
-    return self.delete(tableName, key, value)
+    def insert(self, tableName, record):
+        rqt = self.util.formatInsert(tableName, record)
+        return self.execute(rqt['query'], rqt['params'])
 
+    def save(self, tableName, record):
+        return self.insert(tableName, record)
 
-  # add(insert) or update data in the database
-  # return { status, lastrowid, msg }
-  def execute(self, sql, values = []):
-    mycursor = self.conn.cursor()
-    rs =  { 'status' : False } # result
-    try:
-      sql = sql.replace("?", "%s")
-      mycursor.execute(sql, values)
-      self.conn.commit()
-      rs['status'] = True
-      rs['lastrowid'] = mycursor.lastrowid or None,
-      rs['affectedRows'] = mycursor.rowcount or None
+    # record is a dictionnary
+    def update(self, tableName, record, key, value):
+        rqt = self.util.formatUpdate(tableName, record, key, value)
+        return self.execute(rqt['query'], rqt['params'])
 
-    except mysql.connector.Error as error :
+    # delete record in the database
 
-      rs['msg'] = error.__dict__.get('_full_msg')
-      rs['errno'] = error.__dict__.get('errno')
+    def delete(self, tableName, key, value):
+        rqt = self.util.formatDelete(tableName, key, value)
+        return self.execute(rqt['query'], rqt['params'])
 
-    finally:
-      mycursor.close()
-      return rs
+    # delete record in the database
+    def remove(self, tableName, key, value):
+        return self.delete(tableName, key, value)
 
+    # add(insert) or update data in the database
+    # return { status, lastrowid, msg }
 
-  # add(insert) or update data in the database
-  def executeUpdate(self, sql, values = []):
-    return self.execute(sql, values)
+    def execute(self, sql, values=[]):
+        mycursor = self.conn.cursor()
+        rs = {'status': False}  # result
+        try:
+            sql = sql.replace("?", "%s")
+            mycursor.execute(sql, values)
+            self.conn.commit()
+            rs['status'] = True
+            rs['lastrowid'] = mycursor.lastrowid or None,
+            rs['affectedRows'] = mycursor.rowcount or None
 
+        except mysql.connector.Error as error:
 
-  # select rows from the database
-  # return an array(list) is the request is well executed
-  # return a dist when something o wrong
-  def exec(self, sql,  values = []):
-    rs =  { 'status' : False } # result
-    try:
-      mycursor = self.conn.cursor()
-      sql = sql.replace("?", "%s")
-      mycursor.execute(sql, values)
-      values = mycursor.fetchall()
-      colums = mycursor.column_names
-      return self.util.bindKeysValues(colums, values)
+            rs['msg'] = error.__dict__.get('_full_msg')
+            rs['errno'] = error.__dict__.get('errno')
 
-    except mysql.connector.Error as error :
-      rs['msg'] = error.__dict__.get('_full_msg')
-      rs['errno'] = error.__dict__.get('errno')
-      return rs
-    finally:
-      mycursor.close()
-  
+        finally:
+            mycursor.close()
+            return rs
 
-  #retrieve the first record from the result
-  def one(self, sql, params):
-    rows = self.exec(sql, params)
-    if len(rows) > 0:
-      return rows[0]
-    else:
-      return False
+    # add(insert) or update data in the database
 
+    def executeUpdate(self, sql, values=[]):
+        return self.execute(sql, values)
 
-  # start transaction 
-  def transaction(self):
-    return Transaction(self.conn)
+    # select rows from the database
+    # return an array(list) is the request is well executed
+    # return a dist when something o wrong
 
+    # retrieve the first record from the result
 
-  # return connection property
-  def connection(self):
-    return self.conn
+    def one(self, sql, params):
+        rows = self.select(sql, params)
+        try:
+            if len(rows) > 0:
+                return rows[0]
+            else:
+                return False
+        except KeyError:
+            return False
 
+    # start transaction
 
-  # generate a uniq key, a binary key
-  def uuid(self):
-    return uuid.uuid4().bytes
+    def transaction(self):
+        return Transaction(self.conn)
 
+    # return connection property
 
-  # convert string value to binary
-  def bid(self, _val):
-    return uuid.UUID(_val).bytes
-  
+    def connection(self):
+        return self.conn
 
-  # convert data keys to binary, data is an array
-  def convert(self, data, keys):
-    for k in keys:
-      if hasattr(data, k) :
-        data[k] = self.bid(data[k])
-    return data
+    # generate a uniq key, a binary key
 
-  # check if a select query was exceuted succefully
-  def execTrue(self, rows):
-    return not isinstance(rows, dict)
+    def uuid(self):
+        return uuid.uuid4().bytes
 
-  # check if an insert, delete or update query was exceuted succefully
-  def updatedTrue(self, result):
-    return result.get('status')
+    # convert string value to binary
+
+    def bid(self, _val):
+        return uuid.UUID(_val).bytes
+
+    # convert data keys to binary, data is an array
+
+    def convert(self, data, keys):
+        for k in keys:
+            if hasattr(data, k):
+                data[k] = self.bid(data[k])
+        return data
+
+    # check if a select query was exceuted succefully
+    def execTrue(self, rows):
+        return not isinstance(rows, dict)
+
+    # check if an insert, delete or update query was exceuted succefully
+    def updatedTrue(self, result):
+        return result.get('status')
+
+    # close the connection with mysql
+    def close(self):
+        if(self.conn.is_connected()):
+            self.conn.close()

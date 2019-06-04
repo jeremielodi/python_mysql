@@ -1,5 +1,5 @@
 # eslint class-methods-use-this:off #
-from db.period import PeriodService
+from  .period import PeriodService
 import copy
 
 RESERVED_KEYWORDS = ['limit', 'detailed']
@@ -272,9 +272,9 @@ class FilterParser:
 
   def _parseLimit(self) :
     limitString = ''
-    limit = str(self._filters[self._limitKey])
 
-    if limit :
+    if hasattr(self._filters,self._limitKey ) :
+      limit = str(self._filters[self._limitKey])
       limitString = "\nLIMIT "+limit
 
     return limitString
