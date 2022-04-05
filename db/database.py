@@ -3,25 +3,40 @@ import uuid
 from .util import Util
 from .transaction import Transaction
 from .query_result import QueryResult
+import os
 
 class Database:
 
     def __init__(self):
         # creating a mysql connection
+        self.conn_status = False
         self.conn = self.createConnection()
         self.util = Util()
 
     def createConnection(self):
         if((not hasattr(self, 'conn')) or (not self.conn.is_connected())):
-            self.conn = mysql.connector.connect(
-                host="localhost",  # host
-                user="root",  # use your mysql user name
-                passwd="",  # use your mysql user passworsd
-                port=3306,
-                database="gestion")
-        return self.conn
+            try:
+                self.conn = mysql.connector.connect(
+                    host = os.getenv("DB_HOST"),  # host
+                    user = os.getenv('DB_USER'),  # use your mysql user name
+                    passwd = os.getenv('DB_PASS'),  # use your mysql user passworsd
+                    port = os.getenv('DB_PORT'),
+                    database = os.getenv('DB_NAME'))
+                self.conn_status = True
+                return self.conn
+            except mysql.connector.Error as error:
+                self.conn_status = False
+                result = { 
+                    "msg" : error.__dict__.get('_full_msg'),
+                 "error_number" : error.__dict__.get('errno') or None
+                },
+                print(result)
+                return result
+        return None 
 
-    
+    def connect(self):
+        self.createConnection()
+
     # selection data from database
 
     def select(self, sql,  values=[]):
