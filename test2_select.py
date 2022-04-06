@@ -1,13 +1,13 @@
+from db.query_result import QueryResult
+from settup_env import EnvironementSettup
+EnvironementSettup();
+
 from db.database import Database
 from db.period import PeriodService
-from settup_env import EnvironementSettup
-#
-
-EnvironementSettup();
 
 _db = Database()
 
-if _db.conn_status :
+if _db.status() :
 
     clients = _db.select('''
         SELECT id, name, dateOfBirth, height, age 

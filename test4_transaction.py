@@ -1,5 +1,6 @@
+from settup_env import EnvironementSettup
+EnvironementSettup();
 from db.database import Database
-import uuid
 
 # 
 _db = Database()
@@ -18,6 +19,7 @@ clientUpdateData =  {
 }
 
 trans = _db.transaction()
+
 trans.add_update_query('client', clientUpdateData, 'age', 78)
 
 trans.add_insert_query('client', clientData)
@@ -25,4 +27,7 @@ trans.add_insert_query('client', clientData)
 #trans.add_delete_query('client', 'id', 8)
 
 transResult = trans.execute()
-print(transResult)
+
+print(transResult['commited'],)
+for r in transResult['results']:
+  print(r)

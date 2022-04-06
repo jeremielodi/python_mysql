@@ -1,4 +1,6 @@
 
+-- FOR MYSQL
+
 -- Dumping database structure for gestion
 CREATE DATABASE IF NOT EXISTS `gestion` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `gestion`;

@@ -9,8 +9,8 @@ class PeriodService :
     if type(clientTimestamp) == datetime:
       self.timestamp = clientTimestamp
     else :
-      format = "%Y-%m-%d" if len(clientTimestamp) <=10 else "%Y-%m-%d %H:%M:%S"
-      self.timestamp =  datetime.strptime(clientTimestamp, format )
+      date_format = "%Y-%m-%d" if len(clientTimestamp) <=10 else "%Y-%m-%d %H:%M:%S"
+      self.timestamp =  datetime.strptime(clientTimestamp, date_format )
   
     self.periods = {
       "today" : {

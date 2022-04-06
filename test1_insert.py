@@ -1,9 +1,6 @@
-from db.database import Database
-from db.query_result import QueryResult
 from settup_env import EnvironementSettup
-#
-
 EnvironementSettup();
+from db.database import Database
 
 _db = Database()
 
@@ -22,10 +19,9 @@ if _db.conn_status :
         "name" : "Jeancy"
     }
 
-    Result = QueryResult()
-    Result = _db.save('client', clientData)
+    Result = _db.insert('client', clientData)
 
-    # _db.updatedTrue tells you if your request has been excuted succefully
+    
     print(Result.status, Result.affected_rows, Result.error_number, Result.msg)
 
     # to get the last inserted id : Result['lastrowid'][0]
@@ -36,8 +32,6 @@ if _db.conn_status :
     # you cand change @age to id, it's just a condition
 
     # _db.delete('client','age', 78)
-
-
 
     #    update example
     # ...................................
